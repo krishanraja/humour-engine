@@ -1,0 +1,44 @@
+[project]
+name = "humour-engine"
+version = "0.1.0"
+description = "Inspectable humour comprehension engine: readings, mechanisms, evidence, context and uncertainty."
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic==2.13.5",
+  "PyYAML==6.0.3",
+  "numpy==2.5.3",
+  "scikit-learn==1.9.1",
+  "scipy==1.18.1",
+  "typer==0.29.1",
+  "fastapi==0.163.1",
+  "starlette==1.7.0",
+  "uvicorn==0.54.0",
+  "mcp==2.3.0",
+  "openpyxl==3.1.5",
+  "pandas==3.0.5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.2.0", "ruff==0.17.5", "httpx==0.28.1"]
+
+[project.scripts]
+humour = "humour_engine.interfaces.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 110
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501", "B008"]

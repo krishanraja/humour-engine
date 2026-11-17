@@ -1,0 +1,15 @@
+<View>
+  <Text name="text" value="$text"/>
+  <Header value="1. Is a humorous reading supported by this text and context?"/>
+  <Choices name="comic_reading" toName="text" choice="single" required="true"><Choice value="supported"/><Choice value="not_supported"/><Choice value="ambiguous"/><Choice value="insufficient_context"/></Choices>
+  <Header value="2. Which mechanisms apply?"/>
+  <Choices name="mechanism" toName="text" choice="multiple"><Choice value="absurd_reasoning"/><Choice value="ambiguity"/><Choice value="callback"/><Choice value="exaggeration"/><Choice value="incongruity"/><Choice value="irony"/><Choice value="literalisation"/><Choice value="misdirection"/><Choice value="personification"/><Choice value="reversal"/><Choice value="sarcasm"/><Choice value="self_defeating_logic"/><Choice value="understatement"/></Choices>
+  <Header value="3. Which rhetorical modes apply?"/>
+  <Choices name="rhetorical_mode" toName="text" choice="multiple"><Choice value="absurdism"/><Choice value="meta_humour"/><Choice value="observational"/><Choice value="parody"/><Choice value="roast"/><Choice value="satire"/><Choice value="wordplay"/></Choices>
+  <Header value="4. Highlight the text that supports the reading"/>
+  <Labels name="evidence" toName="text"><Label value="evidence"/></Labels>
+  <Header value="5. Essential elements an explanation must mention (one per line)"/>
+  <TextArea name="essential_elements" toName="text" rows="3"/>
+  <Header value="6. Enjoyable or appropriate for the stated audience? (separate from 1)"/>
+  <Choices name="audience" toName="text" choice="single"><Choice value="yes"/><Choice value="no"/><Choice value="unsure"/><Choice value="no_audience_stated"/></Choices>
+</View>

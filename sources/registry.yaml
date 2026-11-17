@@ -1,0 +1,105 @@
+# Source registry: provenance, pinned revisions and asset hashes.
+# Ownership: Krish owns all listed machinery and data (Ruling, Krish, 2026-11-17).
+# The registry no longer carries licence gates. It still controls:
+#   - provenance: every record traces to source, commit, asset path and sha256
+#   - activation: a source is only read by a loader when status is active
+#   - removals: excluded_records are filtered by every loader, trainer, retriever and exporter
+#   - experimental integrity: evaluation-only assets never enter training or retrieval
+retrieved: "2026-11-17"
+sources:
+  - id: S01
+    name: MaryKenneth/XAI_humour_styles
+    url: https://github.com/MaryKenneth/XAI_humour_styles
+    commit: 0eaaef08be347a4fbdadc0f1fbcad8eee4e516a5
+    role: Analysis artifacts (machine predictions, LIME attributions, descriptive measurements) for error analysis
+    status: active
+    assets:
+      - path: XAI.xlsx
+        sha256: 15a499d6b0951a7d9f06065c88d711986ce492efd2a3a1427d11ffb65ed0e48c
+        kind: xai_table
+        rows_observed: 293
+      - path: linguistic_affective_analysis_json/
+        kind: xai_json_dir
+        files_observed: 293
+    notes:
+      - Predictions, attributions and measurements are machine-derived. They are never human ground truth.
+      - Nested objects are JSON strings; some measurement strings are pseudo-JSON (e.g. "joy     : 0.992").
+      - Texts overlap with S02; overlap is resolved by canonical text identity.
+  - id: S02
+    name: MaryKenneth/Two_Model_Humour_Style
+    url: https://github.com/MaryKenneth/Two_Model_Humour_Style
+    commit: 23a0409728f1cc1616a4336306ed67275917ea3c
+    role: Five-class humour-style labels; four-class and binary affiliative/aggressive views of the same texts
+    status: active
+    assets:
+      - path: humour_styles_dataset/Humour_style.xlsx
+        sha256: 3ab0d6921b8f830142c9bf91fa5ff362662f38da035506765e435e24c4646955
+        kind: mk5_xlsx
+        rows_observed: 1463
+      - path: humour_styles_dataset/Humour_style_4classes.xlsx
+        sha256: 5e2833870b00ef2e774c0f2e144683ce4da7df6ae62bc014bc7966f301cd11a8
+        kind: mk4_xlsx
+        rows_observed: 1463
+      - path: humour_styles_dataset/af_ag_train.csv
+        sha256: 3f5da0eb130c24f81f4a22729eafae38297f0862710f09ec5b326d40721a406e
+        kind: mk_af_ag_csv
+        rows_observed: 448
+      - path: humour_styles_dataset/af_ag_test.csv
+        sha256: 6016368d37524b0e4ed93841320a23237de4143cc4c1b4c3bb46b181d7ba9c84
+        kind: mk_af_ag_csv
+        rows_observed: 120
+    notes:
+      - The upstream af_ag train/test split and notebook splits are ignored; the engine assigns one shared split.
+      - Method reference only for the hierarchical classifier; the engine implementation is independent.
+  - id: S03
+    name: orionw/rJokesData
+    url: https://github.com/orionw/rJokesData
+    commit: d48bedd71bdacc7557b84ad697bf556e7aad7c21
+    role: Large rated joke corpus; score is a platform engagement signal, not a funniness or style label
+    status: dormant
+    assets:
+      - {path: data/train.tsv.gz, kind: rjokes_tsv}
+      - {path: data/dev.tsv.gz, kind: rjokes_tsv}
+      - {path: data/test.tsv.gz, kind: rjokes_tsv}
+    notes:
+      - Dormant only because no experiment in this release needs it. Activate by setting status active.
+      - Do not run its historical collection scripts.
+  - id: S04
+    name: emiljoswin/Deep-Humor-Generation-Analysis-and-Classification-of-Humor-using-Transformers
+    url: https://github.com/emiljoswin/Deep-Humor-Generation-Analysis-and-Classification-of-Humor-using-Transformers
+    commit: d76a67f8887408a64ca3adbb33168c867a764e73
+    role: Methodological reference; motivates joke-vs-news register-confound negative controls
+    status: reference_only
+    assets: []
+  - id: S05
+    name: vadim0x60/awesome-artificial-humour
+    url: https://github.com/vadim0x60/awesome-artificial-humour
+    commit: 75b73a32696aef3c89f2d11e6b0b05e3409b162a
+    role: Discovery index only
+    status: reference_only
+    assets: []
+  - id: S06
+    name: iabufarha/iSarcasmEval
+    url: https://github.com/iabufarha/iSarcasmEval
+    commit: dfc708b53bde1bb571abfb5692f63231c2232195
+    role: Intended sarcasm with author-written non-sarcastic rephrases; contrastive evaluation
+    status: active
+    assets:
+      - path: train/train.En.csv
+        sha256: fde737b69caffbcf81ebe79858ad16ac21881573c308343cd5219c4f7a800ae7
+        kind: isarcasm_train_en
+      - path: test/task_A_En_test.csv
+        sha256: 0ea25619ca3358ecc8440daac1b9bba4d18455bf5b76d874d8dd6a959e72fc49
+        kind: isarcasm_test_a_en
+        evaluation_only: true
+  - id: ENG
+    name: humour-engine original fixtures and pattern-card examples
+    url: local
+    commit: null
+    role: Engine-authored diagnostic cases and card examples (synthetic, unreviewed until human sign-off)
+    status: active
+    assets:
+      - {path: data/fixtures/diagnostic_cases.yaml, kind: engine_fixtures}
+      - {path: knowledge/patterns/cards.yaml, kind: engine_cards}
+
+excluded_records: []   # e.g. {source_id: S02, row_ref: "mk5:17", reason: "removal request", date: "..."}

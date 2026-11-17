@@ -1,0 +1,216 @@
+# Pattern cards. All examples are original, written for this engine on 2026-11-17.
+# label_status: provisional and human_review_status: pending until a human reviewer signs off.
+cards:
+  - id: self_defeating_institutional_action
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      rhetorical_modes: [satire]
+      mechanisms: [self_defeating_logic, incongruity]
+      register: [bureaucratic]
+    definition: An institution's stated action undermines the purpose it claims to serve.
+    required_evidence:
+      - A specific institutional action or claim
+      - A supported contrast between the action's stated purpose and its effect
+    optional_features: [Compressed wording, An understated final clause]
+    insufficient_evidence:
+      - Formal vocabulary alone
+      - Any negative statement about an organisation
+    positive_examples:
+      - "The committee has appointed a committee to reduce the number of committees."
+      - "To cut down on email, staff must now confirm by email that they have read the email policy."
+    negative_examples:
+      - "The committee reduced three meetings to one."
+    borderline_examples:
+      - "The review of the review process is ongoing."
+    source_refs: []
+
+  - id: self_implicating_contradiction
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [self_defeating_logic, incongruity]
+      social_function: [self_directed]
+      rhetorical_modes: [observational]
+    definition: The speaker's method contradicts the goal they state, and the speaker is the butt.
+    required_evidence:
+      - A stated goal
+      - A method that is incompatible with that goal
+    insufficient_evidence:
+      - Self-reference alone
+      - Any admission of a flaw
+    positive_examples:
+      - "I made a detailed plan to become more spontaneous."
+      - "I set four alarms so I could finally learn to wake up naturally."
+    negative_examples:
+      - "I made a detailed plan for the trip."
+    borderline_examples:
+      - "I scheduled time to relax."
+    source_refs: []
+
+  - id: lexical_pun_two_senses
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [ambiguity, misdirection]
+      rhetorical_modes: [wordplay]
+      structure: [one_liner]
+    definition: One anchor word supports two senses, and the material makes both relevant.
+    required_evidence:
+      - The anchor word or phrase
+      - Text that activates sense one
+      - Text that activates sense two
+    insufficient_evidence:
+      - A word that merely has several dictionary meanings
+      - A homophone with no second sense activated
+    positive_examples:
+      - "The bank promised interest. I am still bored."
+    negative_examples:
+      - "The bank promised interest. The rate is 4 percent."
+    borderline_examples:
+      - "The bank promised interest. I opened an account."
+    source_refs: []
+
+  - id: context_dependent_irony
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [irony, understatement]
+      structure: [one_liner]
+    definition: A positive evaluation whose ironic force depends on a supplied situation that contradicts it.
+    required_evidence:
+      - The evaluative phrase
+      - A supplied situation that contradicts the literal evaluation
+    insufficient_evidence:
+      - The phrase alone, with no situation supplied
+      - Punctuation or capitalisation alone
+    positive_examples:
+      - "[Context: arrives after all the work is finished] Excellent timing."
+    negative_examples:
+      - "[Context: arrives just as help is needed] Excellent timing."
+    borderline_examples:
+      - "Excellent timing."
+    source_refs: []
+
+  - id: callback_reapplication
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [callback, incongruity]
+      structure: [distributed_sequence]
+    definition: A later turn reuses an element established earlier, and the reuse changes its relevance.
+    required_evidence:
+      - The antecedent turn
+      - The later turn that reapplies it
+    insufficient_evidence:
+      - The later turn with its antecedent removed
+    positive_examples:
+      - "A: The printer is the real manager here. ... B (later): I'll ask the manager for more paper."
+    negative_examples:
+      - "B: I'll ask the manager for more paper."
+    borderline_examples: []
+    source_refs: []
+
+  - id: personification_of_object
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [personification, incongruity]
+      rhetorical_modes: [observational, absurdism]
+    definition: An object or abstraction is given a human need that comments on a human situation.
+    required_evidence:
+      - The object or abstraction
+      - The human need or act attributed to it
+    insufficient_evidence:
+      - Conventional dead metaphors such as "the car died"
+    positive_examples:
+      - "The calendar has requested annual leave."
+    negative_examples:
+      - "The calendar shows annual leave next week."
+    borderline_examples:
+      - "My laptop needs a holiday."
+    source_refs: []
+
+  - id: mock_formal_trivia
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [incongruity]
+      register: [mock_formal, bureaucratic]
+      structure: [notice]
+      rhetorical_modes: [parody]
+    definition: Official or ceremonial form applied to a trivial matter.
+    required_evidence:
+      - Formal or official framing
+      - A matter whose triviality is evident from the text
+    insufficient_evidence:
+      - Formal wording about a matter that genuinely needs it
+    positive_examples:
+      - "NOTICE: The last biscuit has been formally placed under review. Appeals may be lodged with the kettle."
+    negative_examples:
+      - "NOTICE: The building will close at 6pm on Friday for maintenance."
+    borderline_examples: []
+    source_refs: []
+
+  - id: literalised_idiom
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [literalisation, misdirection]
+      rhetorical_modes: [wordplay]
+    definition: An idiom is taken at face value so its literal image collides with its figurative meaning.
+    required_evidence:
+      - The idiom
+      - Text that activates its literal meaning
+    insufficient_evidence:
+      - An idiom used normally
+    positive_examples:
+      - "They told me to break a leg, so I am now writing my speech from a hospital bed."
+    negative_examples:
+      - "They told me to break a leg before my speech."
+    borderline_examples: []
+    source_refs: []
+
+  - id: affectionate_sarcasm
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes:
+      mechanisms: [sarcasm, irony]
+      social_function: [affiliative]
+    definition: Critical surface wording used to show warmth within an established relationship.
+    required_evidence:
+      - Ironic wording
+      - Supplied relationship or reply context indicating warmth
+    insufficient_evidence:
+      - Ironic wording with no relationship context
+    positive_examples:
+      - "[Context: close friends, B has just helped A move house all day] A: Terrible friend, honestly. Never there for me."
+    negative_examples:
+      - "A: You are a terrible friend and I am done."
+    borderline_examples: []
+    source_refs: []
+
+  - id: sincere_lookalike_controls
+    version: 1
+    label_status: provisional
+    human_review_status: pending
+    axes: {}
+    definition: Sincere statements that share surface features with jokes. Used to keep false positives down.
+    required_evidence: []
+    insufficient_evidence: []
+    positive_examples: []
+    negative_examples:
+      - "I am planning to be more flexible with my schedule this year."
+      - "Thanks for coming in early today, it really helped."
+      - "The committee meets on Tuesdays."
+    borderline_examples: []
+    source_refs: []

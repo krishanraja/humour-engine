@@ -1,0 +1,87 @@
+# Engine ontology. Axes are independent: a line can carry several mechanisms and modes at once.
+# A comic mechanism being present does not mean the material is enjoyable.
+version: "2026-11-17.1"
+axes:
+  comic_reading:
+    description: Whether the supplied evidence supports a humorous reading.
+    multi: false
+    values:
+      supported: A coherent comic reading is supported by evidence in the input or supplied context.
+      not_supported: The material reads as sincere or literal; no comic reading is supported.
+      ambiguous: Two or more readings (including a literal one) remain credible; no main reading is declared.
+      insufficient_context: The reading depends on context that was not supplied.
+  social_function:
+    description: What the humour appears to do in this interaction. Says nothing about the speaker's personality.
+    multi: true
+    values:
+      affiliative: Builds rapport or shared enjoyment without a victim.
+      self_enhancing: Keeps a humorous perspective on adversity to cope or reframe.
+      self_directed: Makes the speaker the butt of the joke. Not the psychological construct "self-defeating".
+      aggressive: Belittles, mocks or excludes a target.
+      unclear: Function cannot be established from the input.
+  mechanism:
+    description: The relationship that creates the comic effect.
+    multi: true
+    values:
+      ambiguity: A word, phrase or structure supports two readings that the material exploits.
+      incongruity: Two frames or facts clash in a way the material makes salient.
+      misdirection: The setup steers toward an expectation the continuation overturns.
+      reversal: A role, outcome or evaluation flips relative to what was established.
+      literalisation: A figurative expression is taken at its literal value.
+      exaggeration: Scale is inflated beyond plausibility to make a point.
+      understatement: Scale or emotion is deflated well below what the situation warrants.
+      callback: A later turn reapplies an element established earlier.
+      self_defeating_logic: An action or statement undermines its own stated purpose.
+      personification: An inanimate thing or abstraction is given human needs or agency.
+      irony: The intended evaluation is opposed to or diverges from the literal one.
+      sarcasm: Verbal irony aimed at a target, typically with critical force.
+      absurd_reasoning: Internally consistent logic applied from an absurd premise.
+  rhetorical_mode:
+    description: The larger communicative approach.
+    multi: true
+    values:
+      satire: Exposes a real target's failing through ridicule or ironic framing.
+      parody: Imitates a recognisable form or voice for comic effect.
+      observational: Draws humour from a recognisable everyday pattern.
+      roast: Directed, ritualised mockery of a present target.
+      absurdism: Humour from a world that does not obey ordinary sense.
+      meta_humour: Humour about the form of jokes or the act of joking.
+      wordplay: Humour carried mainly by the form or sense of words.
+  register:
+    description: How the material is presented. Acoustic values require acoustic evidence.
+    multi: true
+    values:
+      mock_formal: Formal register applied to a trivial matter.
+      bureaucratic: Administrative or institutional language.
+      conversational: Ordinary spoken-style register.
+      compressed: Maximum economy of wording.
+      textually_understated: Restrained wording in text. Not a claim about vocal delivery.
+      acoustically_deadpan: Flat vocal delivery. Requires audio evidence.
+  structure:
+    description: How the material is organised.
+    multi: false
+    values:
+      one_liner: Single self-contained line.
+      question_answer: Riddle or question followed by an answer.
+      anecdote: Short narrative.
+      dialogue: Exchange between speakers.
+      headline: Headline or title form.
+      notice: Announcement, sign or memo form.
+      distributed_sequence: The effect spreads across several turns or sentences.
+      meme_caption: Text dependent on an image template.
+  target:
+    description: What is being mocked or reframed.
+    multi: false
+    values: [self, other_person, behaviour, situation, institution, convention, fictional_person, none, unknown]
+  context_dependency:
+    description: What knowledge the reading needs.
+    multi: true
+    values: [linguistic, topical, cultural, interpersonal, earlier_turn, visual, acoustic, provided_fact]
+  audience:
+    description: An explicitly specified audience's observed or predicted response. Never a universal funniness score.
+    multi: false
+    values: [explicit_preference, pairwise_choice, style_fit, observed_response, unknown]
+
+# Labels that require evidence of a modality the engine did not process.
+modality_restricted:
+  acoustically_deadpan: [audio, video]

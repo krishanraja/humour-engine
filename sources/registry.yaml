@@ -100,6 +100,6 @@ sources:
     status: active
     assets:
       - {path: data/fixtures/diagnostic_cases.yaml, kind: engine_fixtures}
-      - {path: knowledge/patterns/cards.yaml, kind: engine_cards}
+      - {path: src/humour_engine/knowledge/patterns/cards.yaml, kind: engine_cards}
 
 excluded_records: []   # e.g. {source_id: S02, row_ref: "mk5:17", reason: "removal request", date: "..."}

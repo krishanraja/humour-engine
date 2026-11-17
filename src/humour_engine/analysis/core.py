@@ -19,6 +19,7 @@ from humour_engine.analysis.prompt import (
     build_user_message,
     candidate_tool_schema,
     critique_tool_schema,
+    escape_for_block,
 )
 from humour_engine.analysis.retrieval import retrieve_cards
 from humour_engine.analysis.text import input_revision
@@ -62,6 +63,7 @@ class EngineDeps:
     max_input_chars: int = 12_000
     second_assessment: str = "off"  # "off" | "auto"
     prompt_variant: str = "engine"  # "plain" (baseline 2) | "ontology" (baseline 3) | "engine"
+    max_calls_per_request: int = 4  # server-side clamp on the caller's budget
     cache: object | None = None  # operations.cache.ResultCache
 
     @classmethod
@@ -156,7 +158,11 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
     deps = deps or EngineDeps()
     t0 = time.monotonic()
     tax = load_taxonomy()
-    ledger = ledger or BudgetLedger(budget=req.budget)
+    if ledger is None:
+        clamped = req.budget.model_copy(
+            update={"max_model_calls": min(req.budget.max_model_calls, deps.max_calls_per_request)}
+        )
+        ledger = BudgetLedger(budget=clamped)
     rev = input_revision(req.model_dump(mode="json", exclude={"request_id", "budget", "provider_policy", "privacy_mode"}))
     analysis_id = "an_" + uuid.uuid4().hex[:16]
     tasks: dict[TaskName, TaskResult] = {}
@@ -176,8 +182,9 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
     unsupported_mod = [s.segment_id for s in req.all_segments().values() if s.modality not in SUPPORTED_MODALITIES]
     processed = {s.modality for s in req.all_segments().values() if s.modality in SUPPORTED_MODALITIES}
 
-    # ---- comprehension (also needed by profile_fit and counterfactual)
-    needs_semantic = {TaskName.comprehension, TaskName.profile_fit, TaskName.counterfactual} & set(req.tasks)
+    # ---- comprehension. profile_fit and counterfactual depend on it and must request it explicitly,
+    # so their outputs never reveal a reading the caller did not ask for.
+    needs_semantic = TaskName.comprehension in req.tasks
     validated = None
     selection = select_context(req, deps.max_input_chars)
     fields["truncation"] = selection.truncation
@@ -210,9 +217,14 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
                 material = _material(req, selection.focus, selection.context)
                 if isinstance(provider, FixtureProvider):
                     provider.set_material(material)
+                if ledger.price_per_mtok_in is None and provider.caps.price_per_mtok_in is not None:
+                    ledger.price_per_mtok_in = provider.caps.price_per_mtok_in
+                    ledger.price_per_mtok_out = provider.caps.price_per_mtok_out
                 rmode = deps.retrieval_mode if deps.prompt_variant == "engine" else "off"
                 cards, snap = retrieve_cards(
-                    [s.text for s in selection.focus], mode=rmode, blocklist=deps.retrieval_blocklist
+                    [s.text for s in selection.focus + selection.context],
+                    mode=rmode,
+                    blocklist=deps.retrieval_blocklist,
                 )
                 versions.retrieval_snapshot = snap
                 user = build_user_message(material, tax, cards, include_ontology=deps.prompt_variant != "plain")
@@ -228,7 +240,10 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
                             raise ProviderUnavailable(
                                 "malformed_output", f"provider output failed schema validation: {ve.error_count()} errors"
                             ) from ve
-                        repair = user + "\n\nYour previous output failed validation:\n" + str(ve)[:2000]
+                        problems = "; ".join(
+                            f"{'.'.join(str(x) for x in e['loc'])}: {e['msg']}" for e in ve.errors(include_input=False)[:20]
+                        )
+                        repair = user + "\n\nYour previous output failed schema validation at: " + problems
                         resp = _call(provider, ledger, system, repair, tool, retry=True)
                         cand = Candidate.model_validate(resp.payload)
                     validated = validate_candidate(cand, req.all_segments(), req.context, tax, processed)
@@ -258,6 +273,14 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
                         message=f"provider output failed schema validation after repair: {ve.error_count()} errors",
                         task=TaskName.comprehension,
                     )
+                except ValueError as ve:
+                    # e.g. a malformed reference inside otherwise schema-valid output
+                    validated = None
+                    sem_status = TaskStatus.failed
+                    sem_err = EngineError(
+                        code="validation_error", message=f"provider output could not be validated: {ve}"[:300],
+                        task=TaskName.comprehension,
+                    )
 
                 # bounded second assessment: adds counterevidence, never overrules
                 if validated is not None and deps.second_assessment == "auto":
@@ -270,7 +293,10 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
                                 provider,
                                 ledger,
                                 CRITIC_SYSTEM,
-                                user + "\n\nANALYSIS UNDER REVIEW\n" + cand.model_dump_json(),
+                                user
+                                + "\n\n<analysis_under_review>\n"
+                                + escape_for_block(cand.model_dump_json())
+                                + "\n</analysis_under_review>",
                                 critique_tool_schema(),
                             )
                             crit = Critique.model_validate(cresp.payload)
@@ -290,7 +316,7 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
         elif sem_err:
             errors.append(sem_err)
 
-    if validated is not None and TaskName.comprehension in req.tasks:
+    if validated is not None:
         fields.update(
             comic_reading=validated.comic_reading,
             humour_attempt=validated.humour_attempt,
@@ -300,9 +326,6 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
             missing_context=validated.missing_context,
         )
         limitations += validated.limitations
-    elif validated is not None:
-        # semantic analysis ran only in service of another task; keep its evidence internal
-        limitations.append("comprehension ran to support another task but was not requested; its readings are omitted")
 
     # ---- styles (source-specific social function classifier)
     if TaskName.styles in req.tasks:
@@ -356,10 +379,10 @@ def analyse(req: AnalysisRequest, deps: EngineDeps | None = None, ledger: Budget
         if cf is not None:
             fields["counterfactual_analysis"] = cf
 
-    if "comic_reading" in fields and tasks.get(TaskName.comprehension, None) is None:
-        fields.pop("comic_reading")
     if provider is not None and provider.caps.mode == AnalysisMode.fixture:
         limitations.insert(0, "FIXTURE MODE: hand-authored, unreviewed response for a registered diagnostic input. Not model inference.")
+    if ledger.overrun:
+        limitations.append("measured usage exceeded the reserved budget on a call; further calls were refused")
     usage = Usage(
         calls=ledger.calls,
         input_tokens=ledger.input_tokens,
@@ -403,6 +426,8 @@ def _profile_fit(req: AnalysisRequest, deps: EngineDeps, validated):
     profile = deps.profile_store.get(req.taste_profile_id)
     if profile is None:
         return tr(TaskStatus.unsupported, "profile_not_found", f"profile {req.taste_profile_id} not found"), None
+    if TaskName.comprehension not in req.tasks:
+        return tr(TaskStatus.unsupported, "requires_comprehension", "profile_fit requires comprehension in tasks"), None
     if validated is None:
         return tr(TaskStatus.abstained, "no_semantic_result", "profile fit needs a completed comprehension result"), None
     from humour_engine.profiles.assess import assess
@@ -424,6 +449,8 @@ def _counterfactual(req, deps, ledger, validated, rev, analysis_id):
             "no_variant",
             "supply counterfactual_variant; synthetic edit generation is not enabled in this release",
         ), None
+    if TaskName.comprehension not in req.tasks:
+        return tr(TaskStatus.unsupported, "requires_comprehension", "counterfactual requires comprehension in tasks"), None
     if validated is None:
         return tr(TaskStatus.abstained, "no_semantic_result", "original analysis did not complete"), None
     focus_ids = set(req.focus_segment_ids)

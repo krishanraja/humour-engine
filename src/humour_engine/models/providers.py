@@ -74,10 +74,20 @@ class Provider(Protocol):
 
 
 def material_key(material: dict) -> str:
-    """Fixture lookup key: focus texts plus every context text, in order."""
-    texts = sorted([s["text"] for s in material.get("context_segments", [])] + [s["text"] for s in material["segments"]])
-    facts = material.get("provided_facts", [])
-    return sha(json.dumps({"t": texts, "f": facts}, ensure_ascii=False))[:24]
+    """Fixture lookup key over everything that can change a reading: focus, every segment's id,
+    speaker and text, quoted voices, provided facts and declared intent."""
+
+    def seg(s):
+        return [s["segment_id"], s.get("speaker_id"), s["text"], s.get("quoted_from")]
+
+    segs = sorted([seg(s) for s in material.get("context_segments", [])] + [seg(s) for s in material["segments"]])
+    blob = {
+        "focus": sorted(material.get("focus_segment_ids") or [s["segment_id"] for s in material["segments"]]),
+        "segments": segs,
+        "facts": material.get("provided_facts", []),
+        "intent": [material.get("declared_intent"), material.get("declared_intent_by")],
+    }
+    return sha(json.dumps(blob, ensure_ascii=False))[:24]
 
 
 class FixtureProvider:
@@ -126,10 +136,20 @@ class FixtureProvider:
 def _case_material(case: dict) -> dict:
     req = case["request"]
     ctx = req.get("context", {})
+    focus = req.get("focus") or [s["segment_id"] for s in req["segments"]]
+
+    def seg(s):
+        return {"segment_id": s["segment_id"], "speaker_id": s.get("speaker_id"), "text": s["text"],
+                "quoted_from": s.get("quoted_from")}
+
     return {
-        "segments": [{"text": s["text"]} for s in req["segments"]],
-        "context_segments": [{"text": s["text"]} for s in ctx.get("prior_segments", [])],
+        "focus_segment_ids": focus,
+        "segments": [seg(s) for s in req["segments"] if s["segment_id"] in focus],
+        "context_segments": [seg(s) for s in req["segments"] if s["segment_id"] not in focus]
+        + [seg(s) for s in ctx.get("prior_segments", [])],
         "provided_facts": ctx.get("provided_facts", []),
+        "declared_intent": ctx.get("declared_intent"),
+        "declared_intent_by": ctx.get("declared_intent_by"),
     }
 
 

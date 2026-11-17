@@ -40,7 +40,7 @@ def make_request(text="The bank promised interest. I am still bored.", tasks=("c
     payload = {
         "request_id": "r1",
         "focus_segment_ids": ["t1"],
-        "segments": [{"segment_id": "t1", "speaker_id": "a", "text": text, "sequence": 1}],
+        "segments": [{"segment_id": "t1", "text": text, "sequence": 1}],
         "tasks": list(tasks),
         "provider_policy": {"allowed_provider_ids": ["scripted"], "allow_external_inference": True},
     }

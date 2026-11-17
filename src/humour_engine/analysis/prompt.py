@@ -54,6 +54,11 @@ def cards_block(cards: list[Card]) -> str:
     return "\n".join(out)
 
 
+def escape_for_block(text: str) -> str:
+    """Escape '<' (valid inside JSON strings as \\u003c) so content cannot close or open a tag block."""
+    return text.replace("<", "\\u003c")
+
+
 def build_user_message(material: dict, tax: Taxonomy, cards: list[Card], include_ontology: bool = True) -> str:
     parts = []
     if include_ontology:
@@ -62,7 +67,7 @@ def build_user_message(material: dict, tax: Taxonomy, cards: list[Card], include
         parts.append("PATTERN DEFINITIONS (reference only; they do not mean this input matches)\n" + cards_block(cards))
     parts.append(
         "MATERIAL (JSON; analyse the focus segments, use the rest as context)\n<material>\n"
-        + json.dumps(material, ensure_ascii=False, indent=1)
+        + escape_for_block(json.dumps(material, ensure_ascii=False, indent=1))
         + "\n</material>"
     )
     parts.append("Return the result with the submit_analysis tool.")

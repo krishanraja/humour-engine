@@ -1,0 +1,162 @@
+{
+ "$defs": {
+  "AxisPreference": {
+   "additionalProperties": false,
+   "properties": {
+    "against_example_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Against Example Ids",
+     "type": "array"
+    },
+    "axis": {
+     "title": "Axis",
+     "type": "string"
+    },
+    "confidence": {
+     "enum": [
+      "low",
+      "medium",
+      "high"
+     ],
+     "title": "Confidence",
+     "type": "string"
+    },
+    "context": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Context"
+    },
+    "direction": {
+     "enum": [
+      "prefer",
+      "avoid"
+     ],
+     "title": "Direction",
+     "type": "string"
+    },
+    "provenance": {
+     "default": "derived_from_explicit_feedback",
+     "title": "Provenance",
+     "type": "string"
+    },
+    "support": {
+     "title": "Support",
+     "type": "integer"
+    },
+    "support_example_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Support Example Ids",
+     "type": "array"
+    },
+    "value": {
+     "title": "Value",
+     "type": "string"
+    }
+   },
+   "required": [
+    "axis",
+    "value",
+    "direction",
+    "support_example_ids",
+    "support",
+    "confidence"
+   ],
+   "title": "AxisPreference",
+   "type": "object"
+  }
+ },
+ "$id": "humour-engine/1.0/taste_profile.schema.json",
+ "additionalProperties": false,
+ "properties": {
+  "approval_state": {
+   "default": "candidate",
+   "enum": [
+    "candidate",
+    "approved",
+    "retired"
+   ],
+   "title": "Approval State",
+   "type": "string"
+  },
+  "built_from_feedback_ids": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Built From Feedback Ids",
+   "type": "array"
+  },
+  "disliked_example_ids": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Disliked Example Ids",
+   "type": "array"
+  },
+  "near_miss_example_ids": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Near Miss Example Ids",
+   "type": "array"
+  },
+  "notes": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Notes",
+   "type": "array"
+  },
+  "owner_scope": {
+   "title": "Owner Scope",
+   "type": "string"
+  },
+  "positive_example_ids": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Positive Example Ids",
+   "type": "array"
+  },
+  "preferences": {
+   "items": {
+    "$ref": "#/$defs/AxisPreference"
+   },
+   "title": "Preferences",
+   "type": "array"
+  },
+  "profile_id": {
+   "title": "Profile Id",
+   "type": "string"
+  },
+  "unresolved_conflicts": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Unresolved Conflicts",
+   "type": "array"
+  },
+  "version": {
+   "minimum": 1,
+   "title": "Version",
+   "type": "integer"
+  }
+ },
+ "required": [
+  "profile_id",
+  "owner_scope",
+  "version"
+ ],
+ "title": "TasteProfile",
+ "type": "object"
+}

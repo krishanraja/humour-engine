@@ -1,0 +1,49 @@
+{
+ "$id": "humour-engine/1.0/pairwise_preference.schema.json",
+ "additionalProperties": false,
+ "properties": {
+  "other_item_id": {
+   "title": "Other Item Id",
+   "type": "string"
+  },
+  "pair_id": {
+   "title": "Pair Id",
+   "type": "string"
+  },
+  "preferred_item_id": {
+   "title": "Preferred Item Id",
+   "type": "string"
+  },
+  "reason": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Reason"
+  },
+  "recorded_at": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Recorded At"
+  }
+ },
+ "required": [
+  "pair_id",
+  "preferred_item_id",
+  "other_item_id"
+ ],
+ "title": "PairwisePreference",
+ "type": "object"
+}

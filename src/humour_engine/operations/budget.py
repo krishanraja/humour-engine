@@ -20,8 +20,10 @@ class BudgetExceeded(RuntimeError):
 
 
 def estimate_tokens(text: str) -> int:
-    # conservative: ~3.5 chars per token, rounded up
-    return max(1, -(-len(text) * 2 // 7))
+    """Conservative: the larger of ~3.5 chars/token and ~3 UTF-8 bytes/token (non-Latin text is denser)."""
+    by_chars = -(-len(text) * 2 // 7)
+    by_bytes = -(-len(text.encode("utf-8")) // 3)
+    return max(1, by_chars, by_bytes)
 
 
 @dataclass
@@ -42,6 +44,7 @@ class BudgetLedger:
     retries: int = 0
     cost_usd: float = 0.0
     cost_known: bool = True
+    overrun: bool = False
     events: list[dict] = field(default_factory=list)
 
     def remaining_calls(self) -> int:
@@ -49,6 +52,8 @@ class BudgetLedger:
 
     def reserve(self, input_tokens: int, max_output_tokens: int, *, retry: bool = False) -> Reservation:
         b = self.budget
+        if self.overrun:
+            raise BudgetExceeded("an earlier call exceeded its reservation; no further calls")
         if self.calls + 1 > b.max_model_calls:
             raise BudgetExceeded("max_model_calls reached")
         if self.input_tokens + input_tokens > b.max_input_tokens:
@@ -86,6 +91,12 @@ class BudgetLedger:
         if r.cost_usd is not None and actual_in is not None and actual_out is not None:
             new = (actual_in * (self.price_per_mtok_in or 0) + actual_out * (self.price_per_mtok_out or 0)) / 1e6
             self.cost_usd += new - r.cost_usd
+        b = self.budget
+        if self.input_tokens > b.max_input_tokens or self.output_tokens > b.max_output_tokens or (
+            b.max_cost_usd is not None and self.cost_usd > b.max_cost_usd
+        ):
+            # actuals beat the reservation: record it and block every further call
+            self.overrun = True
         self.events.append({"event": "settle", "in": actual_in, "out": actual_out})
 
     def snapshot(self) -> dict:

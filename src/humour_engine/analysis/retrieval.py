@@ -11,6 +11,11 @@ from humour_engine.analysis.text import normalise_for_identity
 from humour_engine.taxonomy import Card, cards_snapshot, load_cards, tokens
 
 
+def _near(example: str, blocked_tokens: list[frozenset[str]], threshold: float = 0.7) -> bool:
+    et = tokens(example)
+    return bool(et) and any(bt and len(et & bt) / len(et | bt) >= threshold for bt in blocked_tokens)
+
+
 def retrieve_cards(
     texts: list[str],
     k: int = 3,
@@ -22,10 +27,11 @@ def retrieve_cards(
     query = frozenset().union(*(tokens(t) for t in texts)) if texts else frozenset()
     inputs = {normalise_for_identity(t) for t in texts}
     blocked = inputs | {normalise_for_identity(b) for b in (blocklist or set())}
+    blocked_tokens = [tokens(b) for b in blocked]
     scored = []
     for card in load_cards():
         examples = [str(x) for x in card.data.get("positive_examples", []) + card.data.get("negative_examples", [])]
-        if any(normalise_for_identity(e) in blocked for e in examples):
+        if any(normalise_for_identity(e) in blocked or _near(e, blocked_tokens) for e in examples):
             # never hand the model the same item (or a held-out item) with its stored label
             continue
         overlap = len(query & card.tokens)

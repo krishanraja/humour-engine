@@ -73,7 +73,7 @@ def analyse(
             "focus_segment_ids": focus[-1:],
             "segments": segs,
             "context": {"provided_facts": fact or []},
-            "tasks": task or ["comprehension"],
+            "tasks": list(dict.fromkeys((task or ["comprehension"]) + (["comprehension", "profile_fit"] if profile else []))),
             "taste_profile_id": profile,
             "provider_policy": {"allowed_provider_ids": ids, "allow_external_inference": ext},
         }
@@ -221,6 +221,15 @@ def annotate_agreement(export: Path = typer.Option(..., help="Label Studio JSON 
 
     rows = import_label_studio(json.loads(export.read_text()))
     typer.echo(json.dumps(fleiss_kappa(rows), indent=1))
+
+
+@app.command("schemas")
+def schemas(out: Path = typer.Option(REPO_ROOT / "schemas")):
+    """Export JSON Schemas for every public contract plus the ontology."""
+    from humour_engine.concept import export_schemas
+
+    for p in export_schemas(out):
+        typer.echo(str(p))
 
 
 @app.command()

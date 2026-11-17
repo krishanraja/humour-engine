@@ -33,6 +33,12 @@ class ResultCache:
             if (deps.profile_store and req.taste_profile_id)
             else None,
             "style_model": getattr(deps.style_model, "model_id", None),
+            "prompt_variant": deps.prompt_variant,
+            "second_assessment": deps.second_assessment,
+            "max_input_chars": deps.max_input_chars,
+            "max_calls_per_request": deps.max_calls_per_request,
+            "budget": req.budget.model_dump(mode="json"),
+            "request_id": req.request_id,
         }
         return sha(json.dumps(parts, sort_keys=True))
 

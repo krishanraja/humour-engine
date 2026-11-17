@@ -16,6 +16,6 @@ Annotate each item **independently**. Do not discuss items until adjudication.
    personality or context that the input does not support.
 6. **Audience fit** is a separate question from 1. Answer `no_audience_stated` when there is no stated audience.
 
-Examples are in `knowledge/patterns/cards.yaml` (positive, negative and borderline cases for each pattern).
+Examples are in `src/humour_engine/knowledge/patterns/cards.yaml` (positive, negative and borderline cases for each pattern).
 Quoted speech belongs to its quoted voice, not the narrator. A callback needs its antecedent; if the antecedent
 is missing, the answer is `insufficient_context` or `not_supported`.

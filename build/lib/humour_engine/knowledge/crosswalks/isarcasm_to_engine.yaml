@@ -1,0 +1,14 @@
+id: isarcasm_to_engine
+version: 1
+source_namespace: isarcasm
+target_namespace: engine.mechanism
+mapping_author: humour-engine build 2026-11-17 (provisional, pending human review)
+relations:
+  - {source: sarcasm, target: sarcasm, relation: equivalent}
+  - {source: irony, target: irony, relation: equivalent}
+  - {source: satire, target: satire, relation: overlapping, note: "engine places satire on the rhetorical_mode axis"}
+  - {source: understatement, target: understatement, relation: equivalent}
+  - {source: overstatement, target: exaggeration, relation: equivalent}
+  - {source: rhetorical_question, target: null, relation: unmapped, note: "a form, not a mechanism; keep under its namespace"}
+  - {source: sarcastic, target: null, relation: broader,
+     note: "binary intended-sarcasm flag is broader than any one mechanism"}

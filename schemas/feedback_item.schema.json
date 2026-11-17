@@ -1,0 +1,83 @@
+{
+ "$id": "humour-engine/1.0/feedback_item.schema.json",
+ "additionalProperties": false,
+ "properties": {
+  "context": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "where this applies, e.g. 'work slack', 'stage'",
+   "title": "Context"
+  },
+  "item_id": {
+   "title": "Item Id",
+   "type": "string"
+  },
+  "judgement": {
+   "enum": [
+    "approved",
+    "rejected",
+    "near_miss"
+   ],
+   "title": "Judgement",
+   "type": "string"
+  },
+  "labels_by_axis": {
+   "additionalProperties": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "description": "mechanisms/modes the owner or a reviewed analysis attached",
+   "title": "Labels By Axis",
+   "type": "object"
+  },
+  "reason": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Reason"
+  },
+  "recorded_at": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Recorded At"
+  },
+  "text": {
+   "title": "Text",
+   "type": "string"
+  },
+  "understood_but_would_not_publish": {
+   "default": false,
+   "title": "Understood But Would Not Publish",
+   "type": "boolean"
+  }
+ },
+ "required": [
+  "item_id",
+  "text",
+  "judgement"
+ ],
+ "title": "FeedbackItem",
+ "type": "object"
+}

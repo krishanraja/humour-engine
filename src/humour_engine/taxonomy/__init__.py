@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-KNOWLEDGE_DIR = Path(__file__).resolve().parents[3] / "knowledge"
+KNOWLEDGE_DIR = Path(__file__).resolve().parents[1] / "knowledge"
 
 CARD_AXIS_TO_TAXONOMY = {
     "rhetorical_modes": "rhetorical_mode",

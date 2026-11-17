@@ -18,12 +18,16 @@ DEFAULT_STYLE_MODEL = REPO_ROOT / "artifacts" / "style_model.pkl"
 DEFAULT_PROFILE_DIR = REPO_ROOT / "data" / "profiles"
 
 
-def build_deps(with_fixture: bool | None = None) -> EngineDeps:
-    if with_fixture is None:
-        with_fixture = os.environ.get("HUMOUR_ENGINE_FIXTURE", "0") == "1"
+def build_deps(with_fixture: bool = False) -> EngineDeps:
+    with_fixture = with_fixture or os.environ.get("HUMOUR_ENGINE_FIXTURE", "0") == "1"
     style = Path(os.environ.get("HUMOUR_ENGINE_STYLE_MODEL", DEFAULT_STYLE_MODEL))
     profiles = Path(os.environ.get("HUMOUR_ENGINE_PROFILE_DIR", DEFAULT_PROFILE_DIR))
-    deps = EngineDeps.default(with_fixture=with_fixture, style_model_path=style, profile_dir=profiles)
+    deps = EngineDeps.default(with_fixture=with_fixture, style_model_path=style, profile_dir=None)
+    scope = os.environ.get("HUMOUR_ENGINE_OWNER_SCOPE")
+    if scope:  # profiles are served only within one explicit owner scope
+        from humour_engine.profiles.store import ProfileStore
+
+        deps.profile_store = ProfileStore(profiles, owner_scope=scope)
     deps.second_assessment = os.environ.get("HUMOUR_ENGINE_SECOND_ASSESSMENT", "off")
     return deps
 

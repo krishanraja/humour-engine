@@ -26,14 +26,17 @@ SYSTEMS = ("plain", "ontology", "engine")
 
 
 def isarcasm_pairs(root: Path, n: int, seed: int = 11) -> list[dict]:
+    from humour_engine.corpus.splits import assign_groups
+
     recs = import_isarcasm(Registry(), root, "train/train.En.csv", operation="evaluation")
+    assign_groups(recs)
     by_id = {r.record_id: r for r in recs}
     pairs = [(by_id[r.parent_record_id], r) for r in recs if r.parent_record_id in by_id]
     random.Random(seed).shuffle(pairs)
     out = []
     for parent, reph in pairs[:n]:
         cats = [lab.value for lab in parent.labels if lab.value not in ("sarcastic", "not_sarcastic")]
-        out.append({"family": parent.family_id or parent.canonical_text_id, "sarcastic": parent.text_raw,
+        out.append({"family": parent.family_id, "sarcastic": parent.text_raw,
                     "rephrase": reph.text_raw, "categories": cats, "source_record": parent.record_id})
     return out
 

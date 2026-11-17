@@ -17,7 +17,7 @@ from humour_engine.models.providers import FixtureProvider
 REQ = {
     "request_id": "eq",
     "focus_segment_ids": ["t1"],
-    "segments": [{"segment_id": "t1", "speaker_id": "a", "sequence": 1,
+    "segments": [{"segment_id": "t1", "sequence": 1,
                   "text": "The bank promised interest. I am still bored."}],
     "provider_policy": {"allowed_provider_ids": ["fixture"]},
 }

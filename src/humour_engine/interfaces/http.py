@@ -42,21 +42,27 @@ def create_app(deps=None) -> FastAPI:
             content={"error": {"code": "invalid_request", "details": exc.errors(include_url=False, include_input=False)}},
         )
 
+    @app.exception_handler(ValueError)
+    async def _bad_value(_, exc: ValueError):
+        return JSONResponse(status_code=422, content={"error": {"code": "invalid_request", "details": str(exc)[:500]}})
+
+    def _shape(res, md_fn, format: str):
+        if format not in ("json", "markdown", "both"):
+            raise HTTPException(400, "format must be json, markdown or both")
+        out = {}
+        if format in ("json", "both"):
+            out["result"] = res.model_dump(mode="json")
+        if format in ("markdown", "both"):
+            out["markdown"] = md_fn(res)
+        return out
+
     @app.post("/v1/analyse")
     async def analyse_route(request: Request, format: str = "json"):
-        res = run_analyse(await _body(request), deps)
-        out = {"result": res.model_dump(mode="json")}
-        if format == "markdown" or format == "both":
-            out["markdown"] = render_markdown(res)
-        return out
+        return _shape(run_analyse(await _body(request), deps), render_markdown, format)
 
     @app.post("/v1/compare")
     async def compare_route(request: Request, format: str = "json"):
-        res = run_compare(await _body(request), deps)
-        out = {"result": res.model_dump(mode="json")}
-        if format in ("markdown", "both"):
-            out["markdown"] = render_compare_markdown(res)
-        return out
+        return _shape(run_compare(await _body(request), deps), render_compare_markdown, format)
 
     @app.get("/v1/capabilities")
     async def caps():

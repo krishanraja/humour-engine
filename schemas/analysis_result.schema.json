@@ -1,0 +1,1178 @@
+{
+ "$defs": {
+  "AnalysisMode": {
+   "enum": [
+    "live",
+    "local_model",
+    "heuristic",
+    "fixture"
+   ],
+   "title": "AnalysisMode",
+   "type": "string"
+  },
+  "Attribution": {
+   "additionalProperties": false,
+   "properties": {
+    "features": {
+     "items": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "number"
+       }
+      ],
+      "type": "array"
+     },
+     "title": "Features",
+     "type": "array"
+    },
+    "fidelity": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Fidelity"
+    },
+    "limitations": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Limitations",
+     "type": "array"
+    },
+    "method": {
+     "title": "Method",
+     "type": "string"
+    },
+    "model": {
+     "title": "Model",
+     "type": "string"
+    },
+    "prediction": {
+     "title": "Prediction",
+     "type": "string"
+    },
+    "settings": {
+     "additionalProperties": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "string"
+       }
+      ]
+     },
+     "title": "Settings",
+     "type": "object"
+    },
+    "stability": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Stability"
+    }
+   },
+   "required": [
+    "model",
+    "prediction",
+    "method",
+    "features",
+    "settings",
+    "fidelity"
+   ],
+   "title": "Attribution",
+   "type": "object"
+  },
+  "AudienceAssessment": {
+   "additionalProperties": false,
+   "properties": {
+    "basis": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Basis",
+     "type": "array"
+    },
+    "conflicting_example_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Conflicting Example Ids",
+     "type": "array"
+    },
+    "fit": {
+     "enum": [
+      "match",
+      "mismatch",
+      "mixed",
+      "unknown"
+     ],
+     "title": "Fit",
+     "type": "string"
+    },
+    "limitations": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Limitations",
+     "type": "array"
+    },
+    "profile_id": {
+     "title": "Profile Id",
+     "type": "string"
+    },
+    "profile_version": {
+     "title": "Profile Version",
+     "type": "integer"
+    },
+    "scope": {
+     "title": "Scope",
+     "type": "string"
+    },
+    "score_kind": {
+     "default": "descriptive_rule_fit",
+     "enum": [
+      "descriptive_rule_fit",
+      "unknown"
+     ],
+     "title": "Score Kind",
+     "type": "string"
+    },
+    "supporting_example_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Supporting Example Ids",
+     "type": "array"
+    },
+    "uncertainty": {
+     "$ref": "#/$defs/Uncertainty"
+    }
+   },
+   "required": [
+    "profile_id",
+    "profile_version",
+    "scope",
+    "fit"
+   ],
+   "title": "AudienceAssessment",
+   "type": "object"
+  },
+  "ComicReading": {
+   "enum": [
+    "supported",
+    "not_supported",
+    "ambiguous",
+    "insufficient_context"
+   ],
+   "title": "ComicReading",
+   "type": "string"
+  },
+  "ContextDependency": {
+   "additionalProperties": false,
+   "properties": {
+    "claim": {
+     "title": "Claim",
+     "type": "string"
+    },
+    "id": {
+     "title": "Id",
+     "type": "string"
+    },
+    "required": {
+     "default": false,
+     "title": "Required",
+     "type": "boolean"
+    },
+    "source_kind": {
+     "enum": [
+      "linguistic",
+      "topical",
+      "cultural",
+      "interpersonal",
+      "earlier_turn",
+      "visual",
+      "acoustic",
+      "provided_fact"
+     ],
+     "title": "Source Kind",
+     "type": "string"
+    },
+    "source_ref": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Source Ref"
+    },
+    "verification_status": {
+     "default": "unverified",
+     "enum": [
+      "supplied",
+      "verified_in_input",
+      "assumed",
+      "unverified"
+     ],
+     "title": "Verification Status",
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "claim",
+    "source_kind"
+   ],
+   "title": "ContextDependency",
+   "type": "object"
+  },
+  "Counterfactual": {
+   "additionalProperties": false,
+   "properties": {
+    "expected_change": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Expected Change"
+    },
+    "human_validated": {
+     "default": false,
+     "title": "Human Validated",
+     "type": "boolean"
+    },
+    "intervention": {
+     "title": "Intervention",
+     "type": "string"
+    },
+    "observed_change": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Observed Change"
+    },
+    "original_analysis_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Original Analysis Id"
+    },
+    "original_input_revision": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Original Input Revision"
+    },
+    "supplied_or_synthetic": {
+     "enum": [
+      "supplied",
+      "synthetic"
+     ],
+     "title": "Supplied Or Synthetic",
+     "type": "string"
+    },
+    "variant_analysis_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Variant Analysis Id"
+    },
+    "variant_input_revision": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Variant Input Revision"
+    }
+   },
+   "required": [
+    "supplied_or_synthetic",
+    "intervention"
+   ],
+   "title": "Counterfactual",
+   "type": "object"
+  },
+  "EngineError": {
+   "additionalProperties": false,
+   "properties": {
+    "code": {
+     "title": "Code",
+     "type": "string"
+    },
+    "message": {
+     "title": "Message",
+     "type": "string"
+    },
+    "retryable": {
+     "default": false,
+     "title": "Retryable",
+     "type": "boolean"
+    },
+    "task": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/TaskName"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "code",
+    "message"
+   ],
+   "title": "EngineError",
+   "type": "object"
+  },
+  "Evidence": {
+   "additionalProperties": false,
+   "properties": {
+    "end": {
+     "minimum": 0,
+     "title": "End",
+     "type": "integer"
+    },
+    "evidence_id": {
+     "title": "Evidence Id",
+     "type": "string"
+    },
+    "exact_text": {
+     "title": "Exact Text",
+     "type": "string"
+    },
+    "modality": {
+     "$ref": "#/$defs/Modality",
+     "default": "text"
+    },
+    "segment_id": {
+     "title": "Segment Id",
+     "type": "string"
+    },
+    "start": {
+     "description": "Half-open Unicode code-point offset into the original segment text",
+     "minimum": 0,
+     "title": "Start",
+     "type": "integer"
+    }
+   },
+   "required": [
+    "evidence_id",
+    "segment_id",
+    "start",
+    "end",
+    "exact_text"
+   ],
+   "title": "Evidence",
+   "type": "object"
+  },
+  "HumourAttempt": {
+   "additionalProperties": false,
+   "properties": {
+    "evidence_refs": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Evidence Refs",
+     "type": "array"
+    },
+    "limitations": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Limitations",
+     "type": "array"
+    },
+    "status": {
+     "enum": [
+      "reported",
+      "supported_inference",
+      "not_established"
+     ],
+     "title": "Status",
+     "type": "string"
+    }
+   },
+   "required": [
+    "status"
+   ],
+   "title": "HumourAttempt",
+   "type": "object"
+  },
+  "Interpretation": {
+   "additionalProperties": false,
+   "properties": {
+    "alternatives": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Alternatives",
+     "type": "array"
+    },
+    "connecting_logic": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Connecting Logic"
+    },
+    "contextual_claim_refs": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Contextual Claim Refs",
+     "type": "array"
+    },
+    "counterevidence": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Counterevidence",
+     "type": "array"
+    },
+    "evidence_refs": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Evidence Refs",
+     "type": "array"
+    },
+    "expectations": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Expectations",
+     "type": "array"
+    },
+    "id": {
+     "title": "Id",
+     "type": "string"
+    },
+    "is_main": {
+     "default": false,
+     "title": "Is Main",
+     "type": "boolean"
+    },
+    "labels_by_axis": {
+     "additionalProperties": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "title": "Labels By Axis",
+     "type": "object"
+    },
+    "literal_reading": {
+     "title": "Literal Reading",
+     "type": "string"
+    },
+    "reported_intent": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ReportedIntent"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "structure_kind": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Structure Kind"
+    },
+    "supported_reading": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Supported Reading"
+    },
+    "target_and_subject": {
+     "$ref": "#/$defs/TargetSubject"
+    },
+    "triggers": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Triggers",
+     "type": "array"
+    },
+    "uncertainty": {
+     "$ref": "#/$defs/Uncertainty"
+    }
+   },
+   "required": [
+    "id",
+    "literal_reading"
+   ],
+   "title": "Interpretation",
+   "type": "object"
+  },
+  "Modality": {
+   "enum": [
+    "text",
+    "transcript",
+    "image",
+    "audio",
+    "video"
+   ],
+   "title": "Modality",
+   "type": "string"
+  },
+  "ReportedIntent": {
+   "additionalProperties": false,
+   "properties": {
+    "basis": {
+     "enum": [
+      "direct_declaration",
+      "second_hand_report",
+      "inference"
+     ],
+     "title": "Basis",
+     "type": "string"
+    },
+    "evidence_ref": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Evidence Ref"
+    },
+    "reported_by": {
+     "title": "Reported By",
+     "type": "string"
+    },
+    "statement": {
+     "title": "Statement",
+     "type": "string"
+    },
+    "whose_intent": {
+     "title": "Whose Intent",
+     "type": "string"
+    }
+   },
+   "required": [
+    "whose_intent",
+    "reported_by",
+    "basis",
+    "statement"
+   ],
+   "title": "ReportedIntent",
+   "type": "object"
+  },
+  "ResultStatus": {
+   "enum": [
+    "complete",
+    "partial",
+    "abstained",
+    "unsupported",
+    "failed"
+   ],
+   "title": "ResultStatus",
+   "type": "string"
+  },
+  "StylePrediction": {
+   "additionalProperties": false,
+   "description": "Source-specific social-function prediction. Not a comprehension result.",
+   "properties": {
+    "distribution": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "title": "Distribution",
+     "type": "object"
+    },
+    "label_namespace": {
+     "title": "Label Namespace",
+     "type": "string"
+    },
+    "limitations": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Limitations",
+     "type": "array"
+    },
+    "model": {
+     "title": "Model",
+     "type": "string"
+    },
+    "predicted": {
+     "title": "Predicted",
+     "type": "string"
+    },
+    "uncertainty": {
+     "$ref": "#/$defs/Uncertainty"
+    }
+   },
+   "required": [
+    "model",
+    "label_namespace",
+    "distribution",
+    "predicted",
+    "uncertainty"
+   ],
+   "title": "StylePrediction",
+   "type": "object"
+  },
+  "TargetSubject": {
+   "additionalProperties": false,
+   "properties": {
+    "perspective": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Perspective"
+    },
+    "subject": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Subject"
+    },
+    "target": {
+     "default": "unknown",
+     "enum": [
+      "self",
+      "other_person",
+      "behaviour",
+      "situation",
+      "institution",
+      "convention",
+      "fictional_person",
+      "none",
+      "unknown"
+     ],
+     "title": "Target",
+     "type": "string"
+    }
+   },
+   "title": "TargetSubject",
+   "type": "object"
+  },
+  "TaskName": {
+   "enum": [
+    "comprehension",
+    "styles",
+    "counterfactual",
+    "profile_fit",
+    "attribution"
+   ],
+   "title": "TaskName",
+   "type": "string"
+  },
+  "TaskResult": {
+   "additionalProperties": false,
+   "properties": {
+    "errors": {
+     "items": {
+      "$ref": "#/$defs/EngineError"
+     },
+     "title": "Errors",
+     "type": "array"
+    },
+    "output_ref": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Output Ref"
+    },
+    "status": {
+     "$ref": "#/$defs/TaskStatus"
+    },
+    "task": {
+     "$ref": "#/$defs/TaskName"
+    }
+   },
+   "required": [
+    "task",
+    "status"
+   ],
+   "title": "TaskResult",
+   "type": "object"
+  },
+  "TaskStatus": {
+   "enum": [
+    "complete",
+    "abstained",
+    "unsupported",
+    "failed",
+    "not_run"
+   ],
+   "title": "TaskStatus",
+   "type": "string"
+  },
+  "Truncation": {
+   "additionalProperties": false,
+   "properties": {
+    "occurred": {
+     "default": false,
+     "title": "Occurred",
+     "type": "boolean"
+    },
+    "omitted_segments": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Omitted Segments",
+     "type": "array"
+    },
+    "potentially_lost_payoff": {
+     "default": false,
+     "title": "Potentially Lost Payoff",
+     "type": "boolean"
+    }
+   },
+   "title": "Truncation",
+   "type": "object"
+  },
+  "Uncertainty": {
+   "additionalProperties": false,
+   "description": "Confidence is explicit about its kind. Unknown is null, never zero.",
+   "properties": {
+    "calibration_ref": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Calibration Ref"
+    },
+    "notes": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Notes",
+     "type": "array"
+    },
+    "score": {
+     "anyOf": [
+      {
+       "maximum": 1,
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Score"
+    },
+    "score_kind": {
+     "default": "unknown",
+     "enum": [
+      "uncalibrated_model_score",
+      "calibrated_probability",
+      "unknown"
+     ],
+     "title": "Score Kind",
+     "type": "string"
+    }
+   },
+   "title": "Uncertainty",
+   "type": "object"
+  },
+  "Usage": {
+   "additionalProperties": false,
+   "properties": {
+    "calls": {
+     "default": 0,
+     "title": "Calls",
+     "type": "integer"
+    },
+    "cost_status": {
+     "default": "not_applicable",
+     "enum": [
+      "measured",
+      "estimated",
+      "unknown",
+      "not_applicable"
+     ],
+     "title": "Cost Status",
+     "type": "string"
+    },
+    "elapsed_ms": {
+     "default": 0,
+     "title": "Elapsed Ms",
+     "type": "integer"
+    },
+    "input_tokens": {
+     "default": 0,
+     "title": "Input Tokens",
+     "type": "integer"
+    },
+    "measured_cost_usd": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Measured Cost Usd"
+    },
+    "output_tokens": {
+     "default": 0,
+     "title": "Output Tokens",
+     "type": "integer"
+    },
+    "retries": {
+     "default": 0,
+     "title": "Retries",
+     "type": "integer"
+    }
+   },
+   "title": "Usage",
+   "type": "object"
+  },
+  "Versions": {
+   "additionalProperties": false,
+   "properties": {
+    "engine": {
+     "title": "Engine",
+     "type": "string"
+    },
+    "model": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Model"
+    },
+    "prompt": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Prompt"
+    },
+    "provider": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Provider"
+    },
+    "retrieval_snapshot": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Retrieval Snapshot"
+    },
+    "taxonomy": {
+     "title": "Taxonomy",
+     "type": "string"
+    }
+   },
+   "required": [
+    "engine",
+    "taxonomy"
+   ],
+   "title": "Versions",
+   "type": "object"
+  }
+ },
+ "$id": "humour-engine/1.0/analysis_result.schema.json",
+ "additionalProperties": false,
+ "properties": {
+  "analysis_id": {
+   "title": "Analysis Id",
+   "type": "string"
+  },
+  "analysis_mode": {
+   "$ref": "#/$defs/AnalysisMode"
+  },
+  "attributions": {
+   "items": {
+    "$ref": "#/$defs/Attribution"
+   },
+   "title": "Attributions",
+   "type": "array"
+  },
+  "audience_assessment": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/AudienceAssessment"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "comic_reading": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/ComicReading"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "context_dependencies": {
+   "items": {
+    "$ref": "#/$defs/ContextDependency"
+   },
+   "title": "Context Dependencies",
+   "type": "array"
+  },
+  "counterfactual_analysis": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/Counterfactual"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "errors": {
+   "items": {
+    "$ref": "#/$defs/EngineError"
+   },
+   "title": "Errors",
+   "type": "array"
+  },
+  "evidence": {
+   "items": {
+    "$ref": "#/$defs/Evidence"
+   },
+   "title": "Evidence",
+   "type": "array"
+  },
+  "humour_attempt": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/HumourAttempt"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "input_revision": {
+   "title": "Input Revision",
+   "type": "string"
+  },
+  "interpretations": {
+   "items": {
+    "$ref": "#/$defs/Interpretation"
+   },
+   "title": "Interpretations",
+   "type": "array"
+  },
+  "limitations": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Limitations",
+   "type": "array"
+  },
+  "missing_context": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Missing Context",
+   "type": "array"
+  },
+  "modalities_actually_processed": {
+   "items": {
+    "$ref": "#/$defs/Modality"
+   },
+   "title": "Modalities Actually Processed",
+   "type": "array"
+  },
+  "request_id": {
+   "title": "Request Id",
+   "type": "string"
+  },
+  "requested_tasks": {
+   "items": {
+    "$ref": "#/$defs/TaskName"
+   },
+   "title": "Requested Tasks",
+   "type": "array"
+  },
+  "schema_version": {
+   "const": "1",
+   "default": "1",
+   "title": "Schema Version",
+   "type": "string"
+  },
+  "status": {
+   "$ref": "#/$defs/ResultStatus"
+  },
+  "style_prediction": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/StylePrediction"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "task_results": {
+   "items": {
+    "$ref": "#/$defs/TaskResult"
+   },
+   "title": "Task Results",
+   "type": "array"
+  },
+  "truncation": {
+   "$ref": "#/$defs/Truncation"
+  },
+  "usage": {
+   "$ref": "#/$defs/Usage"
+  },
+  "versions": {
+   "$ref": "#/$defs/Versions"
+  }
+ },
+ "required": [
+  "analysis_id",
+  "request_id",
+  "input_revision",
+  "versions",
+  "analysis_mode",
+  "requested_tasks",
+  "task_results",
+  "status"
+ ],
+ "title": "AnalysisResult",
+ "type": "object"
+}

@@ -61,21 +61,30 @@ class EvidenceBook:
         self._index: dict[tuple[str, int, int], str] = {}
         self.notes: list[str] = []
 
-    def add(self, q: QuoteRef) -> str:
+    def resolve(self, q: QuoteRef) -> tuple[str, int, int, str]:
+        """Check a quote without registering it (nothing is kept if the caller is rejected)."""
         seg = self.segments.get(q.segment_id)
         if seg is None:
             raise SpanError(f"evidence cites unknown segment {q.segment_id}")
         start, end, note = resolve_span(seg.text, q.quote, q.start, q.occurrence)
+        return q.segment_id, start, end, note
+
+    def add(self, q: QuoteRef) -> str:
+        return self.commit(self.resolve(q))
+
+    def commit(self, resolved: tuple[str, int, int, str]) -> str:
+        sid, start, end, note = resolved
+        seg = self.segments[sid]
         if note:
-            self.notes.append(f"{q.segment_id}: {note}")
-        key = (q.segment_id, start, end)
+            self.notes.append(f"{sid}: {note}")
+        key = (sid, start, end)
         if key in self._index:
             return self._index[key]
         eid = f"ev{len(self.items) + 1}"
         self.items.append(
             Evidence(
                 evidence_id=eid,
-                segment_id=q.segment_id,
+                segment_id=sid,
                 modality=seg.modality,
                 start=start,
                 end=end,
@@ -134,13 +143,13 @@ def validate_candidate(
         if PSYCH_CLAIM.search(text):
             problems.append("makes a psychological or personality claim about a person")
         # evidence
-        ev_ids: list[str] = []
+        resolved_ev = []
         for q in ci.evidence:
             try:
-                ev_ids.append(book.add(q))
+                resolved_ev.append(book.resolve(q))
             except SpanError as e:
                 problems.append(f"invalid evidence ({q.segment_id}): {e}")
-        if ci.supported_reading and not ev_ids:
+        if ci.supported_reading and not resolved_ev:
             problems.append("a comic reading without any evidence span")
         # intent
         intent = None
@@ -158,7 +167,7 @@ def validate_candidate(
                     statement=ri.statement,
                 )
         # context claims
-        claim_refs: list[str] = []
+        pending_deps: list[dict] = []
         for cc in ci.context_claims:
             status = "unverified"
             if cc.source_kind == "earlier_turn":
@@ -168,7 +177,8 @@ def validate_candidate(
                     problems.append(f"earlier_turn claim cites missing segment {cc.source_ref}")
                     continue
             elif cc.source_kind == "provided_fact":
-                if cc.source_ref is not None and cc.source_ref.isdigit() and int(cc.source_ref) < len(context.provided_facts):
+                ref = cc.source_ref or ""
+                if ref.isascii() and ref.isdigit() and int(ref) < len(context.provided_facts):
                     status = "supplied"
                 else:
                     problems.append("provided_fact claim does not cite a supplied fact index")
@@ -180,21 +190,20 @@ def validate_candidate(
                     continue
             else:
                 status = "assumed"
-            did = f"ctx{len(deps) + 1}"
-            deps.append(
-                ContextDependency(
-                    id=did,
-                    claim=cc.claim,
-                    source_kind=cc.source_kind,
-                    source_ref=cc.source_ref,
-                    required=cc.required,
-                    verification_status=status,
-                )
+            pending_deps.append(
+                dict(claim=cc.claim, source_kind=cc.source_kind, source_ref=cc.source_ref, required=cc.required,
+                     verification_status=status)
             )
-            claim_refs.append(did)
         if problems:
+            # nothing from a rejected interpretation (spans, claims) reaches the result
             err("interpretation_rejected", f"{ci.id}: " + "; ".join(problems))
             continue
+        ev_ids = [book.commit(r) for r in resolved_ev]
+        claim_refs: list[str] = []
+        for d in pending_deps:
+            did = f"ctx{len(deps) + 1}"
+            deps.append(ContextDependency(id=did, **d))
+            claim_refs.append(did)
         interps.append(
             Interpretation(
                 id=ci.id,

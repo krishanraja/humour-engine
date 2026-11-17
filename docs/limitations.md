@@ -19,3 +19,5 @@
 - **Synthetic counterfactual edits** are not enabled. Only caller-supplied variants are compared, and an
   observed change still needs human validation.
 - **Languages.** The ontology, prompts and fixtures are English. Other languages are untested.
+- **Style model artifact authenticity.** The pickle loads only when its sha256 matches the sidecar, but both
+  live in the same directory. Anyone who can write there can replace both. Load only artifacts you built.

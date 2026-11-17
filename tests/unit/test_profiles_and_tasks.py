@@ -66,7 +66,7 @@ def test_profile_evaluation_needs_withheld_feedback():
 def test_counterfactual_observes_change_with_both_ids():
     deps = EngineDeps(providers={"fixture": FixtureProvider()})
     req = make_request(tasks=["comprehension", "counterfactual"],
-                       counterfactual_variant=[{"segment_id": "t1", "sequence": 1, "speaker_id": "a",
+                       counterfactual_variant=[{"segment_id": "t1", "sequence": 1,
                                                 "text": "The bank promised interest. The branch opens at nine."}],
                        provider_policy={"allowed_provider_ids": ["fixture"]}, budget={"max_model_calls": 2})
     res = analyse(req, deps)

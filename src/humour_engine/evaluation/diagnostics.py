@@ -62,7 +62,10 @@ def check(case: dict, res: AnalysisResult) -> list[str]:
 
 def run_pack(deps: EngineDeps, provider_ids: list[str], allow_external: bool = False) -> list[dict]:
     rows = []
-    for case in load_cases():
+    cases = load_cases()
+    held_out = {s["text"] for c in cases for s in c["request"]["segments"]}
+    deps.retrieval_blocklist = set(deps.retrieval_blocklist) | held_out
+    for case in cases:
         req = case_request(case, provider_ids, allow_external)
         res = analyse(req, deps)
         fails = check(case, res) if res.comic_reading is not None else [f"status {res.status.value}"]

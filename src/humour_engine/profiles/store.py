@@ -36,10 +36,12 @@ class ProfileStore:
     def save_candidate(self, prof: TasteProfile) -> Path:
         if self.owner_scope is not None and prof.owner_scope != self.owner_scope:
             raise PermissionError("cannot write a profile for another scope")
-        existing = self.get(prof.profile_id)
+        p = self._path(prof.profile_id)
+        existing = TasteProfile.model_validate_json(p.read_text()) if p.exists() else None
+        if existing is not None and existing.owner_scope != prof.owner_scope:
+            raise PermissionError("profile id belongs to another scope")
         if existing is not None and existing.version >= prof.version:
             raise ValueError("a new candidate must carry a higher version; profiles are versioned, not overwritten")
         self.root.mkdir(parents=True, exist_ok=True)
-        p = self._path(prof.profile_id)
         p.write_text(prof.model_dump_json(indent=1))
         return p

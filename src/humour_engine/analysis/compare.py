@@ -32,15 +32,17 @@ def compare(creq: CompareRequest, deps: EngineDeps | None = None) -> CompareResu
     ledger = BudgetLedger(budget=creq.budget)  # shared: never reset per branch
     errors: list[EngineError] = []
     a = b = None
-    try:
-        a = analyse(_req(creq, creq.variant_a), deps, ledger)
-    except ValueError as e:
-        errors.append(EngineError(code="invalid_variant_a", message=str(e)))
-    try:
-        # same ledger: if a consumed the allowance, b reports budget_exhausted instead of resetting it
-        b = analyse(_req(creq, creq.variant_b), deps, ledger)
-    except ValueError as e:
-        errors.append(EngineError(code="invalid_variant_b", message=str(e)))
+    reqs = {}
+    for label, v in (("a", creq.variant_a), ("b", creq.variant_b)):
+        try:
+            reqs[label] = _req(creq, v)
+        except ValueError as e:
+            errors.append(EngineError(code=f"invalid_variant_{label}", message=str(e)[:300]))
+    # same ledger for both: if a consumes the allowance, b reports budget_exhausted instead of resetting it
+    if "a" in reqs:
+        a = analyse(reqs["a"], deps, ledger)
+    if "b" in reqs:
+        b = analyse(reqs["b"], deps, ledger)
     missing = []
     for label, r in (("a", a), ("b", b)):
         if r is None or r.comic_reading is None:

@@ -162,7 +162,8 @@ def run(
         return report
 
     # stage 7: sealed test, once per frozen config
-    ledger_path = out_dir / "test_ledger.json"
+    # fixed, committed location: a different --out cannot bypass the one-use rule
+    ledger_path = Path(__file__).resolve().parents[3] / "evals" / "reports" / "test_ledger.json"
     ledger = json.loads(ledger_path.read_text()) if ledger_path.exists() else {}
     used = ledger.get(manifest["seal"])
     if used and used != frozen_hash:

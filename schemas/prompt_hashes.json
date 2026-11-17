@@ -1,0 +1,9 @@
+{
+ "consumer": "control-center api/_humour.ts HUMOUR_PROMPTS",
+ "contract_version": "1.0",
+ "prompts": {
+  "782385f3d32678cfec7a9609d6f7d07d1dc869c88501ec5e1b15e3d212904bd3": "comprehension-v1:plain",
+  "ac43eb5f40e8e8bfa9b2bea0f820baa942ce90b382a4fbbe7ee03d54d655d36c": "comprehension-v1:critic",
+  "e45d45b1ea147a4e94173a4e29d38390a3ab0f046ee2600b955a578e0e4632a9": "comprehension-v1:engine"
+ }
+}

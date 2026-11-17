@@ -42,6 +42,7 @@ __all__ = [
     "pattern_cards",
     "crosswalk",
     "export_schemas",
+    "prompt_hashes",
 ]
 
 
@@ -93,6 +94,18 @@ SCHEMA_MODELS = {
 }
 
 
+def prompt_hashes() -> dict[str, str]:
+    """SHA-256 of each published system prompt. Control Center runs a model call only for these
+    (control-center api/_humour.ts HUMOUR_PROMPTS); a prompt change ships a new hash there too."""
+    import hashlib
+
+    from humour_engine.analysis.candidate import PROMPT_VERSION
+    from humour_engine.analysis.prompt import CRITIC_SYSTEM, PLAIN_SYSTEM, SYSTEM
+
+    named = {"engine": SYSTEM, "plain": PLAIN_SYSTEM, "critic": CRITIC_SYSTEM}
+    return {hashlib.sha256(t.encode()).hexdigest(): f"{PROMPT_VERSION}:{n}" for n, t in named.items()}
+
+
 def export_schemas(out_dir: Path) -> list[Path]:
     """Write JSON Schemas for every public contract plus the ontology, for non-Python consumers."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -103,6 +116,10 @@ def export_schemas(out_dir: Path) -> list[Path]:
         p = out_dir / f"{name}.schema.json"
         p.write_text(json.dumps(schema, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
         paths.append(p)
+    p = out_dir / "prompt_hashes.json"
+    p.write_text(json.dumps({"contract_version": CONTRACT_VERSION, "prompts": prompt_hashes(),
+                             "consumer": "control-center api/_humour.ts HUMOUR_PROMPTS"}, indent=1, sort_keys=True) + "\n")
+    paths.append(p)
     p = out_dir / "ontology.json"
     p.write_text(json.dumps({"contract_version": CONTRACT_VERSION, **ontology()}, indent=1, sort_keys=True,
                             ensure_ascii=False) + "\n")

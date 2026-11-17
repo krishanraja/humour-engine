@@ -151,6 +151,25 @@ Install it as a dependency pinned to a commit:
 pip install "humour-engine @ git+https://github.com/krishanraja/humour-profile@<commit>"
 ```
 
+**Model calls without holding a key (growth engines).** Control Center already holds the Anthropic key and
+runs humour calls for any registered growth engine on that engine's existing Control Center bearer. Set two
+environment variables in the engine's runtime and allow the `controlcenter` provider:
+
+```text
+HUMOUR_ENGINE_CC_ENGINE=growth-heartside      # the engine's slug
+HUMOUR_ENGINE_CC_BEARER=<the engine's existing Control Center bearer, from its own secret store>
+```
+
+```python
+"provider_policy": {"allowed_provider_ids": ["controlcenter"], "allow_external_inference": True}
+```
+
+Control Center accepts only this package's published prompts (`schemas/prompt_hashes.json`), forces the
+structured-output tool, picks the model itself, meters each call as `humour-<engine>` and caps each engine at
+200 calls a day. Cloud sessions reach the same call through the gateway operation `anthropic.humour`, which
+needs owner approval per call. Changing a prompt here means adding its new hash to Control Center's
+`HUMOUR_PROMPTS` in the same change. Details: control-center `docs/app/everywhere/humour.md`.
+
 **HTTP (any language).** `humour serve` binds to loopback only, because it has no authentication.
 
 | Route | Purpose |
@@ -213,8 +232,8 @@ minor version and breaking changes bump the major version.
 
 ```text
 local implementation:           complete (text and conversation)
-offline contract checks:        pass (117 tests; 15/15 fixture diagnostics)
-real inference:                 not_run (adapter built and tested offline; no API key in the build environment)
+offline contract checks:        pass (121 tests; 15/15 fixture diagnostics)
+real inference:                 not_run (Anthropic and Control Center adapters built and tested offline)
 dataset reuse:                  S01, S02, S06 active; S03 dormant; S04, S05 reference only
 classifier reproduction:        independent re-implementation measured; not a reproduction of the papers
 human comprehension evaluation: pending (guide, Label Studio config, blinded pairwise tooling shipped)
@@ -274,7 +293,7 @@ Other commands: `humour compare`, `humour serve`, `humour mcp`, `humour schemas`
 
 | Mode | What runs | Semantic capability |
 |---|---|---|
-| `live` | Anthropic Messages API with forced structured output | comprehension, compare, counterfactual, profile fit |
+| `live` | Control Center's humour route (preferred) or the Anthropic API directly, forced structured output | comprehension, compare, counterfactual, profile fit |
 | `fixture` | hand-authored responses for registered inputs only | same contracts, no inference |
 | `local_model` | TF-IDF + logistic regression on MaryKenneth labels | `styles` and `attribution` only |
 | `heuristic` | nothing semantic ran | none |

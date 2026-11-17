@@ -43,6 +43,7 @@ from humour_engine.contracts.analysis import (
 )
 from humour_engine.models.providers import (
     AnthropicProvider,
+    ControlCenterProvider,
     FixtureProvider,
     Provider,
     ProviderUnavailable,
@@ -73,6 +74,8 @@ class EngineDeps:
             providers["fixture"] = FixtureProvider()
         if AnthropicProvider.available():
             providers["anthropic"] = AnthropicProvider()
+        if ControlCenterProvider.available():
+            providers["controlcenter"] = ControlCenterProvider()
         style = None
         if style_model_path is not None and style_model_path.exists():
             from humour_engine.models.style import StyleModel

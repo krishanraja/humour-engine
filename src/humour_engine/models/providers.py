@@ -233,3 +233,86 @@ class AnthropicProvider:
             output_tokens=usage.get("output_tokens"),
             meta={"stop_reason": data.get("stop_reason"), "latency_ms": int((time.monotonic() - t0) * 1000)},
         )
+
+
+class ControlCenterProvider:
+    """Real inference through Control Center, which holds the Anthropic key.
+
+    Two doors, both on Control Center's own key and model (docs: control-center
+    docs/app/everywhere/humour.md):
+      - a growth engine posts to /api/growth/engines/<slug>/humour on its own bearer
+        (env HUMOUR_ENGINE_CC_ENGINE and HUMOUR_ENGINE_CC_BEARER);
+      - nothing else here: cloud sessions use the gateway operation anthropic.humour
+        through the Control Center connector, which needs owner approval per call.
+    Control Center accepts only this package's published prompts (schemas/prompt_hashes.json).
+    """
+
+    BASE_ENV = "HUMOUR_ENGINE_CC_URL"
+    ENGINE_ENV = "HUMOUR_ENGINE_CC_ENGINE"
+    BEARER_ENV = "HUMOUR_ENGINE_CC_BEARER"
+    DEFAULT_BASE = "https://controlcenter.krishraja.com"
+
+    def __init__(self, timeout_s: float = 150.0, transport=None):
+        self.caps = ProviderCapabilities(
+            provider_id="controlcenter",
+            model="control-center:SYNTHESIS_MODEL",
+            mode=AnalysisMode.live,
+            modalities=("text", "transcript"),
+            structured_output="forced tool use, run by Control Center",
+            max_context_tokens=17_000,  # Control Center caps material at 60,000 characters
+            max_output_tokens=4000,
+            timeout_s=timeout_s,
+            max_retries=0,
+            remote=True,
+            retention_note="input goes to Control Center, which calls the Anthropic API; metered as humour-<engine>",
+        )
+        self._transport = transport or self._http
+
+    @classmethod
+    def available(cls) -> bool:
+        return bool(os.environ.get(cls.ENGINE_ENV) and os.environ.get(cls.BEARER_ENV))
+
+    def _http(self, url: str, body: dict) -> tuple[int, dict]:
+        bearer = os.environ.get(self.BEARER_ENV)
+        if not bearer:
+            raise ProviderUnavailable("provider_unconfigured", f"{self.BEARER_ENV} is not set")
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(body).encode(),
+            headers={"authorization": f"Bearer {bearer}", "content-type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.caps.timeout_s) as r:
+                return r.status, json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            try:
+                return e.code, json.loads(e.read())
+            except Exception:  # noqa: BLE001 - body is optional on errors
+                return e.code, {}
+        except TimeoutError as e:
+            raise ProviderTimeout("Control Center request timed out; the model call may still have been charged") from e
+        except urllib.error.URLError as e:
+            raise ProviderUnavailable("provider_unreachable", "Control Center unreachable", retryable=True) from e
+
+    def interpret(self, system: str, user: str, tool: dict, max_output_tokens: int) -> ProviderResponse:
+        engine = os.environ.get(self.ENGINE_ENV)
+        if not engine:
+            raise ProviderUnavailable("provider_unconfigured", f"{self.ENGINE_ENV} is not set")
+        base = os.environ.get(self.BASE_ENV, self.DEFAULT_BASE).rstrip("/")
+        if not base.startswith("https://"):
+            raise ProviderUnavailable("provider_unconfigured", "Control Center URL must be https")
+        body = {"system": system, "user": user, "tool": tool, "max_output_tokens": min(max_output_tokens, 4000)}
+        status, data = self._transport(f"{base}/api/growth/engines/{engine}/humour", body)
+        if status != 200 or not data.get("ok"):
+            code = str(data.get("error") or f"http_{status}")
+            raise ProviderUnavailable(f"controlcenter_{code}"[:80], f"Control Center refused or failed: {code}",
+                                      retryable=status in (429, 502, 503, 504))
+        usage = data.get("usage") or {}
+        return ProviderResponse(
+            payload=data["payload"],
+            input_tokens=usage.get("input_tokens"),
+            output_tokens=usage.get("output_tokens"),
+            meta={"model": data.get("model"), "prompt": data.get("prompt"), "cost_usd": data.get("cost_usd"),
+                  "cap": data.get("cap"), "used": data.get("used")},
+        )

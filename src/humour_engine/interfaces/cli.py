@@ -29,13 +29,15 @@ def _emit(obj_json: str, md: str, fmt: str) -> None:
         typer.echo(md)
 
 
-def _providers(fixture: bool, live: bool) -> tuple[list[str], bool]:
+def _providers(fixture: bool, live: bool, controlcenter: bool = False) -> tuple[list[str], bool]:
     ids = []
+    if controlcenter:
+        ids.append("controlcenter")
     if live:
         ids.append("anthropic")
     if fixture:
         ids.append("fixture")
-    return ids, live
+    return ids, live or controlcenter
 
 
 @app.command()
@@ -48,6 +50,7 @@ def analyse(
     profile: str = typer.Option(None, "--profile"),
     fixture: bool = typer.Option(False, "--fixture", help="Allow the labelled fixture provider"),
     live: bool = typer.Option(False, "--live", help="Allow external inference via the Anthropic adapter"),
+    controlcenter: bool = typer.Option(False, "--controlcenter", help="Allow inference through Control Center (engine bearer)"),
     fmt: str = typer.Option("markdown", "--format", help="json|markdown|both"),
 ):
     deps = build_deps(with_fixture=fixture)
@@ -67,7 +70,7 @@ def analyse(
             segs.append({"segment_id": sid, "text": t, "sequence": seq})
             focus.append(sid)
             seq += 1
-        ids, ext = _providers(fixture, live)
+        ids, ext = _providers(fixture, live, controlcenter)
         payload = {
             "request_id": "cli",
             "focus_segment_ids": focus[-1:],

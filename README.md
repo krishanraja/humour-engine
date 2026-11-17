@@ -148,7 +148,7 @@ define("mechanism", "callback")   # -> "A later turn reapplies an element establ
 Install it as a dependency pinned to a commit:
 
 ```bash
-pip install "humour-engine @ git+https://github.com/krishanraja/humour-profile@<commit>"
+pip install "humour-engine @ git+https://github.com/krishanraja/humour-engine@<commit>"
 ```
 
 **Model calls without holding a key (growth engines).** Control Center already holds the Anthropic key and

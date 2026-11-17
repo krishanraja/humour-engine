@@ -2,7 +2,7 @@
 
 ## Decision record (2026-11-17)
 
-- **Target:** `krishanraja/humour-profile`, an empty repository whose purpose matches the engine. Built on
+- **Target:** `krishanraja/humour-engine`, an empty repository whose purpose matches the engine. Built on
   branch `claude/hopeful-cannon-cvibw1`.
 - **One Python core.** The research classifiers, corpus tooling and attribution are Python. Pydantic for
   contracts, Typer for the CLI, FastAPI for HTTP, the `mcp` 2.x `MCPServer` for MCP. Every adapter calls

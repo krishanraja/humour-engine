@@ -1,0 +1,55 @@
+name: Closeout fold
+
+# Folds each closeout note that reached main (now-notes/*.md) into NOW.md and
+# deletes it, with the harness's own hook (.claude/hooks/harness-closeout.mjs
+# --fold, checked against its hash first), so pull requests never edit NOW.md
+# at once (Ruling, Krish, 2026-10-28). Adapted from control-center's
+# now-cap.yml: a merge by auto-merge.yml starts no push workflow, so
+# auto-merge.yml starts this one; a push by a person starts it too. This
+# repository's NOW.md is small, so there is no byte-cap step. Copied from internal-auditor.
+
+on:
+  push:
+    branches: [main]
+    paths: ['now-notes/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: closeout-fold
+  cancel-in-progress: false
+
+jobs:
+  fold:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fold the closeout notes into NOW.md
+        run: |
+          set -uo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch --quiet origin main && git reset --quiet --hard origin/main || exit 1
+            status=0
+            if ls now-notes/*.md >/dev/null 2>&1; then
+              echo "9d6d1ac460c0d45df9bbc7a10b6cd40badcee45d6fad9ee95d84139726cf8790  .claude/hooks/harness-closeout.mjs" | sha256sum --check --status || { echo "::error::.claude/hooks/harness-closeout.mjs is not the harness copy"; exit 1; }
+              node .claude/hooks/harness-closeout.mjs --fold || status=$?
+              if [ -n "$(git status --porcelain -- NOW.md now-notes)" ]; then
+                git add -A -- NOW.md now-notes
+                git commit --quiet -m "docs(closeout): fold closeout notes into NOW.md" -m "Written by .claude/hooks/harness-closeout.mjs --fold, delivered from krishanraja/ai-harness."
+              fi
+            fi
+            if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then exit "$status"; fi
+            if git push --quiet origin HEAD:main; then exit "$status"; fi
+            sleep $((attempt * 5))
+          done
+          echo "::error::Main kept moving; the next merge folds it."
+          exit 1

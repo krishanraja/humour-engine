@@ -1,0 +1,4 @@
+Status: humour-engine joins the fleet: AGENTS.md with a north-star block and the Krish canon block (ai-harness render.mjs, v2026.11.24.5), CLAUDE.md, CI (ruff and pytest, offline, no secret), auto-merge on green CI, the closeout fold and the weekly branch sweep (byte for byte from ai-harness). The North Star is drafted in docs/NORTH_STAR.md for Krish and is not set.
+Changed: the 2026-11-17 closeout note moved to docs/history/, since the fold reads only Status, Changed, Next and the North Star check line.
+Next: Krish sets the North Star (or names another); then ai-harness state/fleet.yaml lists humour-engine under repos so the canon sync keeps its block current.
+North Star check (2026-11-24): recalibration proposed. There is no North Star yet; the draft for Krish is human-judged mechanism accuracy on the sealed set, at least 10 points above the plain-prompt baseline by 22 February 2027.

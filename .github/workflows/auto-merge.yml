@@ -1,0 +1,57 @@
+name: Auto-merge
+
+# Every pull request merges itself as soon as CI is green (Ruling, Krish,
+# 2026-11-11: "ensure that all PRs auto merge instead of laying around open").
+# Copied from internal-auditor, adapted from control-center's auto-merge.yml: only our own pull requests
+# merge themselves (the CI run comes from this repository, the branch lives
+# here, and the author is Krish or the Actions bot; the rule is
+# .github/scripts/auto-merge-pick.jq). A draft is left alone. Red CI never
+# merges.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: auto-merge-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+      - name: Merge the pull request whose CI is green
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          prs=$(gh pr list -R "$REPO" --head "$BRANCH" --state open \
+            --json number,headRefOid,isDraft,isCrossRepository,author,headRepositoryOwner)
+          pr=$(printf '%s' "$prs" | jq -r --arg sha "$SHA" --arg owner "$OWNER" -f .github/scripts/auto-merge-pick.jq)
+          if [ -z "$pr" ]; then echo "No open, ready pull request of ours at $SHA on $BRANCH; nothing to merge."; exit 0; fi
+          waiting=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=100" \
+            --jq '[.workflow_runs[] | select(.name == "CI") | select(.status != "completed" or .conclusion != "success")] | length')
+          if [ "$waiting" != "0" ]; then echo "$waiting other CI run(s) on $SHA are not green yet; the last green one merges."; exit 0; fi
+          gh pr merge "$pr" -R "$REPO" --squash --delete-branch
+          echo "Merged #$pr ($SHA) on green CI."
+          # A merge made with GitHub's own token starts no push workflow on
+          # main, so start the ones that follow a merge by hand.
+          gh workflow run ci.yml -R "$REPO" --ref main || echo "::warning::CI on main was not started."
+          gh workflow run now-cap.yml -R "$REPO" --ref main || echo "::warning::the closeout fold was not started."

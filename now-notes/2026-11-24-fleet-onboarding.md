@@ -1,0 +1,4 @@
+Status: humour-engine joins the fleet: AGENTS.md with a north-star block and the Krish canon block (ai-harness render.mjs, v2026.11.24.5), CLAUDE.md, CI (ruff and pytest, offline, no secret), auto-merge on green CI, the closeout fold and the weekly branch sweep (byte for byte from ai-harness). Krish set the North Star: human-judged mechanism accuracy on the sealed set, at least 10 points above the plain-prompt baseline by 22 February 2027.
+Changed: the 2026-11-17 closeout note moved to docs/history/, since the fold reads only Status, Changed, Next and the North Star check line.
+Next: approve and run the bounded live run (evals/protocols/live_run_plan.json) and its human evaluation, so the North Star gets its first reading.
+North Star check (2026-11-24): holds. Set today by Krish; not measured until the bounded live run and its human evaluation run.

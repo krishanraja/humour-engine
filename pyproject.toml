@@ -41,6 +41,8 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 110
 src = ["src", "tests"]
+# The branch sweep script is the canonical ai-harness copy, byte for byte; it is not linted here.
+extend-exclude = [".github"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]

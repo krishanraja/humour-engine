@@ -8,7 +8,7 @@ as_of: 2026-11-17
 
 ## Where it is right now
 
-North Star: not set (Krish to set one). Urgency: unset.
+<!-- north-star-state {"week_of":"2026-11-23","week_target":null,"current":null,"current_as_of":null,"current_source":"evals/ human evaluation of the bounded live run","urgency":null,"urgency_reason":"not measured yet: the bounded live run and its human evaluation have not run"} --> **North Star number: not measured yet.** Human-judged mechanism accuracy on the sealed set, at least 10 points above the plain-prompt baseline by 22 February 2027 (set by Krish, 2026-11-24).
 
 - Local vertical slice complete: text and conversation analysis with evidence spans, context, uncertainty;
   compare; profile fit; counterfactual on supplied variants; CLI, HTTP (loopback) and MCP.

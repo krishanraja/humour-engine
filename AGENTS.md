@@ -3,11 +3,10 @@
 <!-- north-star:start -->
 ## North Star: read it first, every session
 
-This repository's North Star is [`docs/NORTH_STAR.md`](docs/NORTH_STAR.md). It is not set yet: the file holds a draft for Krish, and only he sets it.
+This repository's North Star is [`docs/NORTH_STAR.md`](docs/NORTH_STAR.md): human-judged mechanism accuracy on the sealed set, at least 10 points above the plain-prompt baseline by 22 February 2027 (set by Krish, 2026-11-24).
 
 - Read it before any work, every session, and say which part of it the task moves. If it moves nothing, say so first and let Krish decide.
-- Until Krish sets it, there is no number and no urgency; ask him for one rather than act on the draft.
-- Check the state line, the first line under "Where it is right now" in `NOW.md`, once a number exists, and push at the intensity [the harness contract](https://github.com/krishanraja/ai-harness/blob/main/contract/north-star-metric.md) sets for its urgency.
+- Check the state line, the first line under "Where it is right now" in `NOW.md`, and push at the intensity [the harness contract](https://github.com/krishanraja/ai-harness/blob/main/contract/north-star-metric.md) sets for its urgency.
 - Only Krish changes it.
 <!-- north-star:end -->
 
